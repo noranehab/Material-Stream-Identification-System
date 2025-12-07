@@ -1,0 +1,11 @@
+# Place your raw dataset here
+# Expected structure:
+# data/raw/
+#   ├── class_0/  (Glass)
+#   ├── class_1/  (Paper)
+#   ├── class_2/  (Cardboard)
+#   ├── class_3/  (Plastic)
+#   ├── class_4/  (Metal)
+#   ├── class_5/  (Trash)
+#   └── class_6/  (Unknown)
+

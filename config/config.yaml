@@ -1,0 +1,113 @@
+# Project Configuration File
+
+# Dataset Configuration
+dataset:
+  raw_data_path: "data/raw"
+  processed_data_path: "data/processed"
+  augmented_data_path: "data/augmented"
+  train_split: 0.8
+  val_split: 0.2
+  target_samples_per_class: 500
+  image_size: [224, 224]  # Width, Height
+
+# Class Labels
+classes:
+  0: "Glass"
+  1: "Paper"
+  2: "Cardboard"
+  3: "Plastic"
+  4: "Metal"
+  5: "Trash"
+  6: "Unknown"
+
+# Data Augmentation Configuration
+augmentation:
+  min_increase_percentage: 30  # Minimum 30% increase
+  techniques:
+    rotation:
+      enabled: true
+      max_angle: 30
+      probability: 0.7
+    horizontal_flip:
+      enabled: true
+      probability: 0.5
+    vertical_flip:
+      enabled: true
+      probability: 0.3
+    scaling:
+      enabled: true
+      scale_range: [0.8, 1.2]
+      probability: 0.6
+    color_jitter:
+      enabled: true
+      brightness: 0.2
+      contrast: 0.2
+      saturation: 0.2
+      hue: 0.1
+      probability: 0.5
+    noise:
+      enabled: true
+      noise_factor: 0.05
+      probability: 0.3
+
+# Feature Extraction Configuration
+feature_extraction:
+  method: "color_histogram"  # Options: histogram_of_oriented_gradients, local_binary_pattern, color_histogram, combined
+  hog:
+    orientations: 9
+    pixels_per_cell: [8, 8]
+    cells_per_block: [2, 2]
+    visualize: false
+  lbp:
+    radius: 3
+    n_points: 24
+    method: "uniform"
+  color_histogram:
+    bins: 32
+    color_space: "RGB"  # Options: RGB, HSV, LAB
+  combined:
+    use_hog: true
+    use_lbp: true
+    use_color_hist: true
+
+# SVM Classifier Configuration
+svm:
+  kernel: "rbf"  # Options: linear, poly, rbf, sigmoid
+  C: 1.0
+  gamma: "scale"  # Options: scale, auto, or float
+  probability: true  # Required for rejection mechanism
+  rejection_threshold: 0.6  # Confidence threshold for rejection
+
+# k-NN Classifier Configuration
+knn:
+  n_neighbors: 5
+  weights: "distance"  # Options: uniform, distance
+  algorithm: "auto"  # Options: auto, ball_tree, kd_tree, brute
+  metric: "euclidean"  # Options: euclidean, manhattan, minkowski
+  rejection_threshold: 0.7  # Confidence threshold for rejection
+
+# Training Configuration
+training:
+  random_seed: 42
+  n_jobs: -1  # Use all available cores
+  verbose: true
+  save_models: true
+  model_save_path: "models"
+
+# Evaluation Configuration
+evaluation:
+  target_accuracy: 0.85  # Minimum validation accuracy target
+  metrics: ["accuracy", "precision", "recall", "f1_score", "confusion_matrix"]
+  save_results: true
+  results_path: "results"
+
+# Real-time Application Configuration
+deployment:
+  camera_index: 0
+  frame_width: 640
+  frame_height: 480
+  fps: 30
+  display_confidence: true
+  display_fps: true
+  model_path: "models/best_model.pkl"
+

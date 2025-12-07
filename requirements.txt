@@ -1,0 +1,38 @@
+# Core ML and Data Processing
+numpy>=1.21.0
+pandas>=1.3.0
+scikit-learn>=1.0.0
+scikit-image>=0.18.0
+opencv-python>=4.5.0
+Pillow>=8.3.0
+
+# Feature Extraction
+scipy>=1.7.0
+# scikit-image>=0.18.0  # Optional - code works without it using OpenCV/NumPy fallbacks
+
+# Data Augmentation
+ albumentations>=1.1.0  # Optional - code works without it using OpenCV fallback
+ imgaug>=0.4.0  # Optional
+
+# Model Serialization
+joblib>=1.0.0
+pickle5>=0.0.11
+
+# Visualization
+matplotlib>=3.4.0
+seaborn>=0.11.0
+
+# Configuration
+pyyaml>=5.4.0
+
+# Real-time Application
+opencv-contrib-python>=4.5.0
+
+# Utilities
+tqdm>=4.62.0
+pathlib2>=2.3.6
+
+# Jupyter (for notebooks)
+jupyter>=1.0.0
+ipykernel>=6.0.0
+
