@@ -60,10 +60,15 @@ def main():
     augmented_labels = []
 
     for class_id, count in class_counts.items():
-        # Skip Unknown class (6) for augmentation
-        if class_id == 6:
-            continue
         class_images = [img for img, lbl in zip(X_train, y_train) if lbl == class_id]
+        
+        # Skip Unknown class (6) for augmentation, but include original images
+        if class_id == 6:
+            print(f"   Class {class_id} (Unknown): {count} -> {count} (no augmentation)")
+            augmented_images.extend(class_images)
+            augmented_labels.extend([class_id] * len(class_images))
+            continue
+        
         target_count = augmentation_plan.get(class_id, count)
 
         print(f"   Class {class_id}: {count} -> {target_count}")

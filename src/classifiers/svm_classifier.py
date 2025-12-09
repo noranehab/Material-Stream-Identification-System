@@ -35,12 +35,16 @@ class SVMClassifier:
         
         svm_config = self.config['svm']
         
+        # Use verbose mode if enabled in training config
+        verbose = self.config['training'].get('verbose', False)
+        
         self.model = SVC(
             kernel=svm_config['kernel'],
             C=svm_config['C'],
             gamma=svm_config['gamma'],
             probability=svm_config['probability'],  # Required for rejection
-            random_state=self.config['training']['random_seed']
+            random_state=self.config['training']['random_seed'],
+            verbose=verbose  # Show training progress
         )
         
         self.scaler = StandardScaler()
@@ -57,13 +61,22 @@ class SVMClassifier:
             y_train: Training labels (n_samples,)
         """
         # Normalize features
+        print("   Normalizing features...")
         X_train_scaled = self.scaler.fit_transform(X_train)
+        print(f"   Training data shape: {X_train_scaled.shape}")
         
         # Train model
-        print("Training SVM classifier...")
+        print("   Training SVM classifier (this may take several minutes)...")
+        print("   Note: RBF kernel SVM with large feature vectors can be slow.")
+        print("   Please wait, training is in progress...")
+        import time
+        start_time = time.time()
+        
         self.model.fit(X_train_scaled, y_train)
+        
+        elapsed_time = time.time() - start_time
         self.is_trained = True
-        print("SVM training completed.")
+        print(f"   SVM training completed in {elapsed_time:.1f} seconds ({elapsed_time/60:.1f} minutes).")
     
     def predict(self, X: np.ndarray) -> np.ndarray:
         """

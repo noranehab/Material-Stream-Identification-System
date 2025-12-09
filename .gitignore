@@ -4,27 +4,14 @@ __pycache__/
 *$py.class
 *.so
 .Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
 *.egg-info/
-.installed.cfg
-*.egg
+dist/
+build/
 
 # Virtual Environment
 venv/
 env/
 ENV/
-.venv
 
 # IDE
 .vscode/
@@ -33,35 +20,26 @@ ENV/
 *.swo
 *~
 
-# Jupyter Notebook
-.ipynb_checkpoints
-*.ipynb
+# Data files (large)
+data/processed/*.pkl
+data/augmented/
 
-# Data (keep structure but ignore large files)
-data/raw/*
-data/processed/*
-data/augmented/*
-!data/raw/.gitkeep
-!data/processed/.gitkeep
-!data/augmented/.gitkeep
-
-# Models
+# Model files (large)
 models/*.pkl
-models/*.joblib
-models/*.h5
-!models/.gitkeep
 
-# Logs and outputs
-logs/
+# Results
+results/*.png
+results/*.json
+
+# Temporary files
+*.tmp
 *.log
-outputs/
-results/
+config/temp_*.yaml
+config/optimized_config.yaml
 
 # OS
 .DS_Store
 Thumbs.db
 
-# Project specific
-config/local_config.yaml
-*.tmp
-.cache/
+# Jupyter
+.ipynb_checkpoints/

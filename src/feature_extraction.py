@@ -151,6 +151,14 @@ class FeatureExtractor:
             radius = lbp_config['radius']
             n_points = lbp_config['n_points']
             
+            # Ensure n_points doesn't exceed 8 bits (uint8 limit)
+            global _SKIMAGE_WARNING_SHOWN
+            if n_points > 8:
+                n_points = 8
+                if not _SKIMAGE_WARNING_SHOWN:
+                    print(f"   Note: LBP n_points reduced to 8 (uint8 limit) for OpenCV fallback")
+                    _SKIMAGE_WARNING_SHOWN = True
+            
             # Create circular sampling points
             angles = 2 * np.pi * np.arange(n_points) / n_points
             y_offsets = np.round(radius * np.sin(angles)).astype(int)
@@ -159,14 +167,16 @@ class FeatureExtractor:
             # Pad image
             padded = np.pad(gray, radius, mode='edge')
             h, w = gray.shape
-            lbp = np.zeros_like(gray, dtype=np.uint8)
+            lbp = np.zeros((h, w), dtype=np.uint8)
             
             # Compute LBP
             for i in range(n_points):
                 y_coords = np.arange(radius, h + radius)[:, None] + y_offsets[i]
                 x_coords = np.arange(radius, w + radius)[None, :] + x_offsets[i]
                 neighbor_values = padded[y_coords, x_coords]
-                lbp |= ((neighbor_values >= gray) << i).astype(np.uint8)
+                # Compare and set bit (ensure we don't overflow uint8)
+                comparison = (neighbor_values >= gray).astype(np.uint8)
+                lbp |= (comparison << i)
         
         # Compute histogram
         n_bins = int(lbp.max()) + 1

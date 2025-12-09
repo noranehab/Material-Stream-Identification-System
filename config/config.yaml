@@ -52,7 +52,8 @@ augmentation:
 
 # Feature Extraction Configuration
 feature_extraction:
-  method: "color_histogram"  # Options: histogram_of_oriented_gradients, local_binary_pattern, color_histogram, combined
+  method: "combined"  # LBP + Color Histogram achieved 69.75% (best so far)
+  # Options: histogram_of_oriented_gradients, local_binary_pattern, color_histogram, combined
   hog:
     orientations: 9
     pixels_per_cell: [8, 8]
@@ -63,28 +64,30 @@ feature_extraction:
     n_points: 24
     method: "uniform"
   color_histogram:
-    bins: 32
-    color_space: "RGB"  # Options: RGB, HSV, LAB
+    bins: 128  # Optimized value (256 was too high, caused overfitting)
+    color_space: "HSV"  # HSV performed best in testing
+    # Note: Can try LAB color space for better color discrimination
   combined:
-    use_hog: true
-    use_lbp: true
-    use_color_hist: true
+    use_hog: false  # HOG performed poorly (20.91%), disabling
+    use_lbp: true   # LBP alone: 61.44%
+    use_color_hist: true  # Color histogram: 73.19%
 
 # SVM Classifier Configuration
 svm:
-  kernel: "rbf"  # Options: linear, poly, rbf, sigmoid
-  C: 1.0
-  gamma: "scale"  # Options: scale, auto, or float
+  kernel: "rbf"  # RBF kernel for better accuracy (with PCA reduction, training is manageable)
+  # Options: linear (fast), rbf (more accurate but slower), poly, sigmoid
+  C: 200.0  # Increased for better fit (was 50.0)
+  gamma: 0.001  # Optimized for combined features
   probability: true  # Required for rejection mechanism
-  rejection_threshold: 0.6  # Confidence threshold for rejection
+  rejection_threshold: 0.3  # Lowered further to accept more predictions
 
 # k-NN Classifier Configuration
 knn:
-  n_neighbors: 5
-  weights: "distance"  # Options: uniform, distance
+  n_neighbors: 5  # Optimized value from hyperparameter search
+  weights: "distance"  # Options: uniform, distance (distance weighting helps with outliers)
   algorithm: "auto"  # Options: auto, ball_tree, kd_tree, brute
-  metric: "euclidean"  # Options: euclidean, manhattan, minkowski
-  rejection_threshold: 0.7  # Confidence threshold for rejection
+  metric: "manhattan"  # Optimized: manhattan performed better than euclidean
+  rejection_threshold: 0.3  # Lowered further to accept more predictions
 
 # Training Configuration
 training:
@@ -93,6 +96,16 @@ training:
   verbose: true
   save_models: true
   model_save_path: "models"
+  pca_variance: 0.995  # Retain 99.5% variance (optimized from search)
+  use_class_weights: true  # Enable class-weighted training for underperforming classes
+  class_weights:
+    0: 2.0  # Glass - underperforming, double weight
+    1: 1.0  # Paper
+    2: 1.0  # Cardboard
+    3: 1.0  # Plastic
+    4: 2.0  # Metal - underperforming, double weight
+    5: 1.0  # Trash
+    6: 1.0  # Unknown
 
 # Evaluation Configuration
 evaluation:

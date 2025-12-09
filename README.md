@@ -54,27 +54,77 @@ cd ML_Project
 pip install -r requirements.txt
 ```
 
-## Usage
+## Quick Start Guide
 
-### 1. Data Preparation
+### Option 1: Run Complete Pipeline (Recommended)
+Run all steps automatically:
+```bash
+python run_project.py
+```
+This will execute:
+1. Data preparation
+2. Model training
+3. Model evaluation
+
+### Option 2: Run Steps Manually
+
+#### Step 1: Install Dependencies
+```bash
+pip install -r requirements.txt
+```
+
+#### Step 2: Prepare Data
+Loads raw images, applies data augmentation, and prepares training/validation sets.
 ```bash
 python scripts/prepare_data.py
 ```
+**Expected Output:**
+- Augmented training data: ~3000 samples (500 per class)
+- Validation data: ~373 samples
+- Files saved to `data/processed/`
 
-### 2. Train Models
+#### Step 3: Train Models
+Trains both SVM and k-NN classifiers with optimized hyperparameters.
 ```bash
 python scripts/train_models.py
 ```
+**Expected Output:**
+- Trained SVM model saved to `models/svm_model_*.pkl`
+- Trained k-NN model saved to `models/knn_model_*.pkl`
+- Best model (SVM or k-NN) saved to `models/best_model_*.pkl`
+- Training takes 5-10 minutes depending on your system
 
-### 3. Evaluate Models
+#### Step 4: Evaluate Models
+Evaluates trained models and generates performance reports.
 ```bash
 python scripts/evaluate_models.py
 ```
+**Expected Output:**
+- Detailed accuracy comparison between SVM and k-NN
+- Confusion matrices saved to `results/`
+- Classification reports printed to console
+- Best model automatically selected based on primary classes accuracy
 
-### 4. Run Real-time Application
+#### Step 5: Run Real-time Application (Optional)
+Launches live camera feed for real-time material classification.
 ```bash
 python src/deployment/real_time_app.py
 ```
+**Note:** Requires a webcam/camera connected to your system. Press 'q' to quit.
+
+## Cleanup
+
+To remove temporary files, test scripts, and optimization scripts:
+```bash
+python scripts/cleanup.py
+```
+
+This removes:
+- Temporary config files
+- Test scripts
+- Optimization scripts
+- Old model files
+- Python cache files (`__pycache__`)
 
 ## Requirements
 

@@ -10,6 +10,7 @@ import yaml
 from pathlib import Path
 import sys
 import time
+import joblib
 
 sys.path.append(str(Path(__file__).parent.parent.parent))
 
@@ -37,18 +38,47 @@ def run_real_time_app(config_path: str = "config/config.yaml", model_type: str =
     # Initialize feature extractor
     feature_extractor = FeatureExtractor(config_path)
     
-    # Load model
+    # Load model and check for PCA
     print(f"Loading {model_type} model...")
+    models_dir = Path("models")
+    pca_transformer = None
+    
+    # Check for PCA transformer (used during training)
+    pca_path = models_dir / "best_model_ensemble_pca.pkl"
+    if not pca_path.exists():
+        pca_path = models_dir / "svm_model_pca.pkl"  # Fallback
+    if pca_path.exists():
+        print(f"   Loading PCA transformer from {pca_path}...")
+        pca_transformer = joblib.load(str(pca_path))
+    
     if model_type == "svm":
         classifier = SVMClassifier(config_path)
-        classifier.load("models/svm_model")
+        # Try best model first, then fallback to regular
+        svm_model_path = models_dir / "best_model_svm"
+        if not (svm_model_path.parent / f"{svm_model_path.name}_model.pkl").exists():
+            svm_model_path = models_dir / "svm_model"
+        classifier.load(str(svm_model_path))
     elif model_type == "knn":
         classifier = KNNClassifier(config_path)
-        classifier.load("models/knn_model")
-    else:  # best model
-        # TODO: Load best model based on evaluation results
-        classifier = SVMClassifier(config_path)
-        classifier.load("models/best_model")
+        # Try best model first, then fallback to regular
+        knn_model_path = models_dir / "best_model_knn"
+        if not (knn_model_path.parent / f"{knn_model_path.name}_model.pkl").exists():
+            knn_model_path = models_dir / "knn_model"
+        classifier.load(str(knn_model_path))
+    else:  # best model - try best individual model
+        svm_model_path = models_dir / "best_model_svm"
+        knn_model_path = models_dir / "best_model_knn"
+        
+        if (svm_model_path.parent / f"{svm_model_path.name}_model.pkl").exists():
+            classifier = SVMClassifier(config_path)
+            classifier.load(str(svm_model_path))
+        elif (knn_model_path.parent / f"{knn_model_path.name}_model.pkl").exists():
+            classifier = KNNClassifier(config_path)
+            classifier.load(str(knn_model_path))
+        else:
+            # Fallback to regular SVM
+            classifier = SVMClassifier(config_path)
+            classifier.load("models/svm_model")
     
     # Initialize camera
     cap = cv2.VideoCapture(deploy_config['camera_index'])
@@ -87,6 +117,10 @@ def run_real_time_app(config_path: str = "config/config.yaml", model_type: str =
         # Extract features
         features = feature_extractor.extract_features(frame_resized)
         features = features.reshape(1, -1)
+        
+        # Apply PCA if it was used during training
+        if pca_transformer is not None:
+            features = pca_transformer.transform(features)
         
         # Predict
         if hasattr(classifier, 'predict_with_rejection'):
